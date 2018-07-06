@@ -1,0 +1,65 @@
+﻿<!DOCTYPE html>
+<html>
+    <head>
+        <title>OnTime REST API Example Javascript</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.2.1.min.js"></script>
+    </head>
+    <body>
+        <h1>Tracking# 4787</h1>
+        <br />
+        <div id="lblStatus">Adding "Customer Reference# 614852" to the order description. Please wait.</div>
+        <script type="text/javascript">
+            var _apiKey = 'YOUR_API_KEY_HERE';
+            var _companyId = 'YOUR_COMPANY_ID_HERE';
+            var _baseUrl = 'https://secure.ontime360.com/sites/' + _companyId + '/api/';
+            
+            $(document).ready(function () {
+                try {
+                    $.ajax({
+                        type: 'GET',
+                        url: _baseUrl + 'orders?trackingNumber=4787',
+                        headers: {
+                            'Authorization': _apiKey
+                        },
+                        success: function (response) {
+                            $.ajax({
+                                type: 'GET',
+                                url: _baseUrl + 'orders/' + response,
+                                headers: {
+                                    'Authorization' : _apiKey
+                                },
+                                success: function (response) {
+                                    console.log(response)
+                                    response['Description'] += 'Customer Reference# 614852';
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: _baseUrl + 'order/post',
+                                        contentType: 'application/json',
+                                        data: JSON.stringify(response),
+                                        dataType: 'json',
+                                        headers: {
+                                            'Authorization': _apiKey
+                                        },
+                                        success: function (response) {
+                                            $('#lblStatus').html('Successfully updated the order!');
+                                        }
+                                    });
+                                },
+                                error: function (response) {
+                                    $('#lblStatus').html('An error has occurred: No order with tracking number 4787.');
+                                }
+                            });
+                        },
+                        error: function (response) {
+                            $('#lblStatus').html('An error has occurred: No order with tracking number 4787.');
+                        }
+                    });
+                } catch (error) {
+                    $('#lblStatus').html('An error has occurred: ' + error.message);
+                }
+            });
+        </script>
+    </body>
+</html>
